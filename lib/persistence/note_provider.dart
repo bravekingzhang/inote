@@ -67,15 +67,12 @@ create table $tableNote (
     return note;
   }
 
-  Future<List<Note>> listNote() async {
+  Future<List<Note>> listNote({bool done}) async {
     await _open();
-    List<Map> maps = await _db.query(tableNote, columns: [
-      columnId,
-      columnDone,
-      columnTitle,
-      columnTime,
-      columnContent
-    ]);
+    List<Map> maps = await _db.query(tableNote,
+        columns: [columnId, columnDone, columnTitle, columnTime, columnContent],
+        where: '$columnDone = ?',
+        whereArgs: [done ? 1 : 0]);
     return maps.map((e) => Note.fromMap(e)).toList();
   }
 
