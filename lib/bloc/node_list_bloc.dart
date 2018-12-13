@@ -42,7 +42,7 @@ class NoteListBloc extends BlocBase {
         done: false);
     _noteProvider.insert(note);
     _listGoing.insert(0, note);
-    _controllerGoing.sink.add(_listDone);
+    _controllerGoing.sink.add(_listGoing);
     return note;
   }
 
