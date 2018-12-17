@@ -85,7 +85,7 @@ create table $tableNote (
   Future<Note> getNote(int id) async {
     await _open();
     List<Map> maps = await _db.query(tableNote,
-        columns: [columnId, columnDone, columnTitle],
+        columns: [columnId, columnDone, columnTitle,columnTime, columnContent],
         where: '$columnId = ?',
         whereArgs: [id]);
     if (maps.length > 0) {

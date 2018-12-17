@@ -66,6 +66,22 @@ create table $tableRemind (
     }
   }
 
+  Future<Remind> getRemind({int notifyId}) async {
+    await _open();
+    await _open();
+    List<Map> maps = await _db.query(tableRemind,
+        columns: [
+          columnId,
+          columnDone,
+          columnNoteId,
+          columnTime,
+          columnNotifyId
+        ],
+        where: '$columnNotifyId = ?',
+        whereArgs: [notifyId]);
+    return Remind.fromMap(maps.first);
+  }
+
   Future<Remind> insert(Remind remind) async {
     await _open();
     remind.id = await _db.insert(tableRemind, remind.toMap());
@@ -117,6 +133,17 @@ create table $tableRemind (
     await _db.rawUpdate(
         'UPDATE $tableRemind SET $columnDone = 1 WHERE $columnNotifyId = ?',
         [notifyId]);
+  }
+
+  //拿到最大的提醒id，因为设置周期性提醒需要一个唯一的id
+  Future<int> getMaxNotifyIdByNoteId({int noteId}) async {
+    await _open();
+    List<Map> maps = await _db.rawQuery(
+        'SELECT max($columnNotifyId) FROM $tableRemind where $columnNoteId = $noteId');
+    if (maps == null || maps.length == 0) {
+      return 0;
+    }
+    return Sqflite.firstIntValue(maps) ?? 0;
   }
 
   //拿到最大的提醒id，因为设置周期性提醒需要一个唯一的id

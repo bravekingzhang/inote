@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:inote/bloc/bloc_provider.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:inote/edtor/full_page.dart';
 import 'package:inote/note_detail.dart';
 import 'package:inote/persistence/note_provider.dart';
 import 'package:inote/persistence/remind_provider.dart';
@@ -9,6 +10,7 @@ class HomeBloc extends BlocBase {
   final BuildContext _buildContext;
 
   RemindProvider _remindProvider;
+  NoteProvider _noteProvider;
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
   HomeBloc(this._buildContext);
@@ -22,6 +24,7 @@ class HomeBloc extends BlocBase {
   void initState() {
     // TODO: implement initState
     _initNotification();
+    _noteProvider = NoteProvider();
     _remindProvider = RemindProvider();
   }
 
@@ -88,17 +91,38 @@ class HomeBloc extends BlocBase {
           note.title,
           "第$i次提醒",
           scheduledNotificationDateTime,
-          platformChannelSpecifics);
+          platformChannelSpecifics,
+          payload: '${remind.notifyId}');
     }
   }
 
   Future onSelectNotification(String payload) async {
     if (payload != null) {
       debugPrint('notification payload: ' + payload);
+      //fix seem that it is useless..
+      await _remindProvider.setNotifyDone(notifyId: int.parse(payload));
+      Remind remind =
+          await _remindProvider.getRemind(notifyId: int.parse(payload));
+      Note note = await _noteProvider.getNote(remind.noteId);
+      int maxNotifyId =
+          await _remindProvider.getMaxNotifyIdByNoteId(noteId: remind.noteId);
+      if (maxNotifyId == int.parse(payload)) {
+        //最晚的一条提醒已经查看
+        _remindProvider.deleteAllRemind(noteId: remind.noteId);
+        note.done = true;
+        await _noteProvider.update(note);
+      }
+      print("进入详情$note");
+      await Navigator.push(
+        _buildContext,
+        new MaterialPageRoute(
+            builder: (context) => new FullPageEditorScreen(
+                  note: note,
+                  color: Colors.deepOrangeAccent,
+                )),
+      );
+    } else {
+      debugPrint("notification can't find");
     }
-    await Navigator.push(
-      _buildContext,
-      new MaterialPageRoute(builder: (context) => new NoteDetail()),
-    );
   }
 }
