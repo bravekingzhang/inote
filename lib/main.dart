@@ -3,6 +3,7 @@ import 'package:inote/home.dart';
 import 'package:inote/bloc/bloc_provider.dart';
 import 'package:inote/bloc/node_list_bloc.dart';
 
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -25,4 +26,8 @@ class MyApp extends StatelessWidget {
       home: BlocProvider(child: HomePage(), bloc: NoteListBloc()),
     );
   }
+
+
+
+
 }

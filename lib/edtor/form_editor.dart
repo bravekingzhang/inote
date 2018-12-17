@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:inote/bloc/home_bloc.dart';
+import 'package:inote/persistence/note_provider.dart';
 import 'package:zefyr/zefyr.dart';
 
 import 'package:inote/edtor/full_page.dart';
@@ -7,11 +9,12 @@ import 'package:inote/bloc/node_list_bloc.dart';
 
 class FormEmbeddedScreen extends StatefulWidget {
   final NoteListBloc noteListBloc;
+  final HomeBloc homeBloc;
 
   @override
   _FormEmbeddedScreenState createState() => _FormEmbeddedScreenState();
 
-  FormEmbeddedScreen({this.noteListBloc});
+  FormEmbeddedScreen({this.noteListBloc, this.homeBloc});
 }
 
 class _FormEmbeddedScreenState extends State<FormEmbeddedScreen> {
@@ -106,11 +109,14 @@ class _FormEmbeddedScreenState extends State<FormEmbeddedScreen> {
     );
   }
 
-  void _save() {
+  void _save() async {
     print(jsonEncode(_controller.document.toJson()));
-    widget.noteListBloc.onNoteAdd(
+    Note note = await widget.noteListBloc.onNoteAdd(
         title: _titleController.text,
         content: jsonEncode(_controller.document.toJson()));
     Navigator.of(context).pop();
+    print('插入笔记成功$note');
+    widget.homeBloc.showNotifyPeriodically(
+        noteId: note.id, title: "inote", body: '你的笔记[${note.title}]等待提醒');
   }
 }

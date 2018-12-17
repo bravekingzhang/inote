@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:inote/bloc/home_bloc.dart';
 import 'package:inote/bloc/node_list_bloc.dart';
 import 'package:inote/note_list.dart';
 
@@ -17,13 +18,35 @@ const List<Color> coolColors = <Color>[
   Color.fromARGB(255, 255, 45, 85),
 ];
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   HomePage()
       : colorItems = List<Color>.generate(50, (int index) {
           return coolColors[math.Random().nextInt(coolColors.length)];
         });
 
   final List<Color> colorItems;
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  HomeBloc _homeBloc;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _homeBloc = HomeBloc(context);
+    _homeBloc.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _homeBloc.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,8 +81,9 @@ class HomePage extends StatelessWidget {
                   //进行中
                   builder: (BuildContext context) {
                     return NoteList(
-                      colorItems: colorItems,
+                      colorItems: widget.colorItems,
                       noteListBloc: noteListBloc,
+                      homeBloc: _homeBloc,
                       done: false,
                     );
                   },
@@ -71,8 +95,9 @@ class HomePage extends StatelessWidget {
                   //已完成
                   builder: (BuildContext context) {
                     return NoteList(
-                      colorItems: colorItems,
+                      colorItems: widget.colorItems,
                       noteListBloc: noteListBloc,
+                      homeBloc: _homeBloc,
                       done: true,
                     );
                   },

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:inote/bloc/home_bloc.dart';
 import 'package:inote/bloc/node_list_bloc.dart';
 import 'package:inote/edtor/full_page.dart';
 import 'package:inote/tool_tip_button.dart';
@@ -8,9 +9,11 @@ import 'package:inote/persistence/note_provider.dart';
 import 'package:inote/utils/toast_utils.dart';
 
 class NoteList extends StatelessWidget {
-  const NoteList({this.colorItems, this.noteListBloc, this.done});
+  const NoteList(
+      {this.colorItems, this.noteListBloc, this.homeBloc, this.done});
 
   final List<Color> colorItems;
+  final HomeBloc homeBloc;
   final NoteListBloc noteListBloc;
   final bool done;
 
@@ -29,6 +32,7 @@ class NoteList extends StatelessWidget {
                     .push(MaterialPageRoute(builder: (context) {
                   return AddNote(
                     noteListBloc: noteListBloc,
+                    homeBloc: homeBloc,
                   );
                 }));
               },

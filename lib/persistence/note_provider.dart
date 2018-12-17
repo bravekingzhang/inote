@@ -38,6 +38,12 @@ class Note {
     time = map[columnTime];
     done = map[columnDone] == 1;
   }
+
+  @override
+  String toString() {
+    return 'Note{id: $id, title: $title, content: $content, time: $time, done: $done}';
+  }
+
 }
 
 class NoteProvider {

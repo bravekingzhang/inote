@@ -40,7 +40,7 @@ class NoteListBloc extends BlocBase {
         content: content,
         time: new DateTime.now().millisecondsSinceEpoch ~/ 1000,
         done: false);
-    _noteProvider.insert(note);
+    note= await _noteProvider.insert(note);
     _listGoing.insert(0, note);
     _controllerGoing.sink.add(_listGoing);
     return note;
