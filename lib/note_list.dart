@@ -62,7 +62,8 @@ class NoteList extends StatelessWidget {
                         color: colorItems[index],
                         note: snapshot.data[index],
                         done: done,
-                        bloc: noteListBloc,
+                        noteListBloc: noteListBloc,
+                        homeBloc: homeBloc,
                       );
                     },
                     childCount: snapshot.data?.length ?? 0,
@@ -79,14 +80,21 @@ class NoteList extends StatelessWidget {
 
 class NoteItemView extends StatelessWidget {
   const NoteItemView(
-      {this.index, this.lastItem, this.color, this.note, this.done, this.bloc});
+      {this.index,
+      this.lastItem,
+      this.color,
+      this.note,
+      this.done,
+      this.noteListBloc,
+      this.homeBloc});
 
   final int index;
   final bool lastItem;
   final Color color;
   final Note note;
   final bool done;
-  final NoteListBloc bloc;
+  final NoteListBloc noteListBloc;
+  final HomeBloc homeBloc;
 
   @override
   Widget build(BuildContext context) {
@@ -145,7 +153,10 @@ class NoteItemView extends StatelessWidget {
                         semanticLabel: 'going',
                       ),
                       onPressed: () {
-                        bloc.onDone(note);
+                        //设置笔记标志位为完成
+                        noteListBloc.onDone(note);
+                        //清除笔记待提醒事件
+                        homeBloc.setNoteFinished(note: note);
                         showToast("恭喜！已提前完成！");
                       },
                     )
@@ -157,7 +168,8 @@ class NoteItemView extends StatelessWidget {
                         semanticLabel: 'done',
                       ),
                       onPressed: () {
-                        bloc.onReDoing(note);
+                        noteListBloc.onReDoing(note);
+                        homeBloc.showNotifyPeriodically(note: note);
                         showToast("已重新开始复习！");
                       },
                     ),

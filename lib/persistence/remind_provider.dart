@@ -73,7 +73,7 @@ create table $tableRemind (
   }
 
   //列举笔记下面所有的提醒
-  Future<List<Remind>> listRemind({int noteId}) async {
+  Future<List<Remind>> listRemind({int noteId, bool isDone}) async {
     await _open();
     List<Map> maps = await _db.query(tableRemind,
         columns: [
@@ -83,12 +83,12 @@ create table $tableRemind (
           columnTime,
           columnNotifyId
         ],
-        where: '$columnNoteId = ?',
-        whereArgs: [noteId]);
+        where: '$columnNoteId = ? and $columnDone = ?',
+        whereArgs: [noteId, isDone ? 1 : 0]);
     return maps.map((e) => Remind.fromMap(e)).toList();
   }
 
-  //列举笔记下面所有的提醒
+  //笔记下面所有的提醒
   Future deleteAllRemind({int noteId}) async {
     await _open();
     await _db

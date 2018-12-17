@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:inote/bloc/bloc_provider.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:inote/note_detail.dart';
+import 'package:inote/persistence/note_provider.dart';
 import 'package:inote/persistence/remind_provider.dart';
 
 class HomeBloc extends BlocBase {
@@ -36,29 +37,43 @@ class HomeBloc extends BlocBase {
         onSelectNotification: onSelectNotification);
   }
 
+  //设置某条笔记完成
+  Future setNoteFinished({Note note}) async {
+    List<Remind> reminds =
+        await _remindProvider.listRemind(noteId: note.id, isDone: false);
+    if (reminds != null && reminds.length > 0) {
+      for (var remind in reminds) {
+        await flutterLocalNotificationsPlugin.cancel(remind.notifyId); //取消提醒
+      }
+    }
+    await _remindProvider.deleteAllRemind(noteId: note.id);
+  }
+
   ///艾宾浩斯遗忘周期提醒
-  Future showNotifyPeriodically({int noteId, String title, String body}) async {
+  Future showNotifyPeriodically({Note note}) async {
     int initRemindId = await _remindProvider.getMaxNotifyId();
 
     //todo  周期提醒，这个周期
     List<Remind> list = List();
     initRemindId++;
     list.add(
-        Remind(noteId: noteId, notifyId: initRemindId, time: 10, done: false));
+        Remind(noteId: note.id, notifyId: initRemindId, time: 10, done: false));
     initRemindId++;
     list.add(
-        Remind(noteId: noteId, notifyId: initRemindId, time: 20, done: false));
+        Remind(noteId: note.id, notifyId: initRemindId, time: 20, done: false));
     initRemindId++;
     list.add(
-        Remind(noteId: noteId, notifyId: initRemindId, time: 30, done: false));
+        Remind(noteId: note.id, notifyId: initRemindId, time: 30, done: false));
     initRemindId++;
     list.add(
-        Remind(noteId: noteId, notifyId: initRemindId, time: 40, done: false));
+        Remind(noteId: note.id, notifyId: initRemindId, time: 40, done: false));
     initRemindId++;
     list.add(
-        Remind(noteId: noteId, notifyId: initRemindId, time: 50, done: false));
+        Remind(noteId: note.id, notifyId: initRemindId, time: 50, done: false));
 
+    var i = 0;
     for (var remind in list) {
+      i++;
       remind = await _remindProvider.insert(remind);
       print('插入提醒成功,$remind');
       var scheduledNotificationDateTime =
@@ -68,8 +83,12 @@ class HomeBloc extends BlocBase {
       var iOSPlatformChannelSpecifics = new IOSNotificationDetails();
       NotificationDetails platformChannelSpecifics = new NotificationDetails(
           androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
-      await flutterLocalNotificationsPlugin.schedule(remind.notifyId, title,
-          body, scheduledNotificationDateTime, platformChannelSpecifics);
+      await flutterLocalNotificationsPlugin.schedule(
+          remind.notifyId,
+          note.title,
+          "第$i次提醒",
+          scheduledNotificationDateTime,
+          platformChannelSpecifics);
     }
   }
 

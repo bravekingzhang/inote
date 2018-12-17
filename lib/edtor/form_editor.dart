@@ -116,7 +116,6 @@ class _FormEmbeddedScreenState extends State<FormEmbeddedScreen> {
         content: jsonEncode(_controller.document.toJson()));
     Navigator.of(context).pop();
     print('插入笔记成功$note');
-    widget.homeBloc.showNotifyPeriodically(
-        noteId: note.id, title: "inote", body: '你的笔记[${note.title}]等待提醒');
+    widget.homeBloc.showNotifyPeriodically(note: note);
   }
 }
