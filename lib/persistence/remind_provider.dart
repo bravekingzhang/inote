@@ -45,7 +45,18 @@ class Remind {
   }
 }
 
+//Singleton
 class RemindProvider {
+  static final RemindProvider _singleton = new RemindProvider._internal();
+
+  factory RemindProvider() {
+    return _singleton;
+  }
+
+  RemindProvider._internal() {
+    _open();
+  }
+
   Database _db;
 
   Future _open({String name = dbName}) async {

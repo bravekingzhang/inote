@@ -43,10 +43,20 @@ class Note {
   String toString() {
     return 'Note{id: $id, title: $title, content: $content, time: $time, done: $done}';
   }
-
 }
 
+//Singleton
 class NoteProvider {
+  static final NoteProvider _singleton = new NoteProvider._internal();
+
+  factory NoteProvider() {
+    return _singleton;
+  }
+
+  NoteProvider._internal() {
+    _open();
+  }
+
   Database _db;
 
   Future _open({String name = dbName}) async {
@@ -85,7 +95,7 @@ create table $tableNote (
   Future<Note> getNote(int id) async {
     await _open();
     List<Map> maps = await _db.query(tableNote,
-        columns: [columnId, columnDone, columnTitle,columnTime, columnContent],
+        columns: [columnId, columnDone, columnTitle, columnTime, columnContent],
         where: '$columnId = ?',
         whereArgs: [id]);
     if (maps.length > 0) {
