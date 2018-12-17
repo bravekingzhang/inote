@@ -21,7 +21,7 @@
 ![](https://github.com/bravekingzhang/inote/blob/master/artifact/Simulator%20Screen%20Shot%20-%20iPhone%20XS%20Max%20-%202018-12-11%20at%2012.02.33.png)
 ![](https://github.com/bravekingzhang/inote/blob/master/artifact/Simulator%20Screen%20Shot%20-%20iPhone%20XS%20Max%20-%202018-12-11%20at%2012.02.37.png)
 ![](https://github.com/bravekingzhang/inote/blob/master/artifact/Simulator%20Screen%20Shot%20-%20iPhone%20XS%20Max%20-%202018-12-11%20at%2012.28.02.png)
-![](https://github.com/bravekingzhang/inote/blob/master/artifact/Simulator%20Screen%20Shot%20-%20iPhone%20XS%20Max%20-%202018-12-11%20at%2012.28.02.png)
+![](https://github.com/bravekingzhang/inote/blob/master/artifact/Simulator%20Screen%20Shot%20-%20iPhone%20XS%20Max%20-%202018-12-17%20at%2012.44.14.png)
 
 ### 待实现
 1、艾宾浩斯提醒
