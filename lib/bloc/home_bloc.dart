@@ -3,6 +3,7 @@ import 'package:inote/bloc/bloc_provider.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:inote/bloc/node_list_bloc.dart';
 import 'package:inote/edtor/full_page.dart';
+import 'package:inote/edtor/period_setting.dart';
 import 'package:inote/note_detail.dart';
 import 'package:inote/persistence/note_provider.dart';
 import 'package:inote/persistence/remind_provider.dart';
@@ -56,26 +57,19 @@ class HomeBloc extends BlocBase {
   }
 
   ///艾宾浩斯遗忘周期提醒
-  Future showNotifyPeriodically({Note note}) async {
+  Future showNotifyPeriodically(
+      {Note note, List<PeriodSettingStr> periodList}) async {
     int initRemindId = await _remindProvider.getMaxNotifyId();
-
-    //todo  周期提醒，这个周期
     List<Remind> list = List();
     initRemindId++;
-    list.add(
-        Remind(noteId: note.id, notifyId: initRemindId, time: 10, done: false));
-    initRemindId++;
-    list.add(
-        Remind(noteId: note.id, notifyId: initRemindId, time: 20, done: false));
-    initRemindId++;
-    list.add(
-        Remind(noteId: note.id, notifyId: initRemindId, time: 30, done: false));
-    initRemindId++;
-    list.add(
-        Remind(noteId: note.id, notifyId: initRemindId, time: 40, done: false));
-    initRemindId++;
-    list.add(
-        Remind(noteId: note.id, notifyId: initRemindId, time: 50, done: false));
+
+    for (var periodSettingStr in periodList) {
+      list.add(Remind(
+          noteId: note.id,
+          notifyId: initRemindId,
+          time: periodSettingStr.schedule,
+          done: false));
+    }
 
     var i = 0;
     for (var remind in list) {
@@ -114,7 +108,7 @@ class HomeBloc extends BlocBase {
         _remindProvider.deleteAllRemind(noteId: remind.noteId);
         note.done = true;
         await _noteProvider.update(note);
-        if(_noteListBloc!=null){
+        if (_noteListBloc != null) {
           _noteListBloc.onDone(note);
         }
       }

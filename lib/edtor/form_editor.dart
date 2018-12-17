@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:inote/bloc/home_bloc.dart';
+
 import 'package:inote/persistence/note_provider.dart';
 import 'package:zefyr/zefyr.dart';
 
 import 'package:inote/edtor/full_page.dart';
 import 'dart:convert';
 import 'package:inote/bloc/node_list_bloc.dart';
+import 'package:inote/bloc/home_bloc.dart';
+import 'package:inote/edtor/period_setting.dart';
 
 class FormEmbeddedScreen extends StatefulWidget {
   final NoteListBloc noteListBloc;
@@ -64,7 +66,7 @@ class _FormEmbeddedScreenState extends State<FormEmbeddedScreen> {
           new FlatButton(
               onPressed: _save,
               child: Text(
-                'DONE',
+                'Next',
                 style: TextStyle(color: Colors.blueAccent),
               ))
         ],
@@ -110,12 +112,15 @@ class _FormEmbeddedScreenState extends State<FormEmbeddedScreen> {
   }
 
   void _save() async {
-    print(jsonEncode(_controller.document.toJson()));
-    Note note = await widget.noteListBloc.onNoteAdd(
+    Note note = Note(
         title: _titleController.text,
         content: jsonEncode(_controller.document.toJson()));
-    Navigator.of(context).pop();
-    print('插入笔记成功$note');
-    widget.homeBloc.showNotifyPeriodically(note: note);
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+      return PeriodSetting(
+        note: note,
+        homeBloc: widget.homeBloc,
+        noteListBloc: widget.noteListBloc,
+      );
+    }));
   }
 }
