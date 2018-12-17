@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:inote/bloc/bloc_provider.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:inote/bloc/node_list_bloc.dart';
 import 'package:inote/edtor/full_page.dart';
 import 'package:inote/note_detail.dart';
 import 'package:inote/persistence/note_provider.dart';
@@ -12,6 +13,8 @@ class HomeBloc extends BlocBase {
   RemindProvider _remindProvider;
   NoteProvider _noteProvider;
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+
+  NoteListBloc _noteListBloc;
 
   HomeBloc(this._buildContext);
 
@@ -111,6 +114,9 @@ class HomeBloc extends BlocBase {
         _remindProvider.deleteAllRemind(noteId: remind.noteId);
         note.done = true;
         await _noteProvider.update(note);
+        if(_noteListBloc!=null){
+          _noteListBloc.onDone(note);
+        }
       }
       print("进入详情$note");
       await Navigator.push(
@@ -124,5 +130,9 @@ class HomeBloc extends BlocBase {
     } else {
       debugPrint("notification can't find");
     }
+  }
+
+  void setNoteListBloc(NoteListBloc noteListBloc) {
+    _noteListBloc = noteListBloc;
   }
 }

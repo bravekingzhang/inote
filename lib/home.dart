@@ -51,6 +51,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     NoteListBloc noteListBloc = BlocProvider.of(context);
+    _homeBloc.setNoteListBloc(noteListBloc);
     return WillPopScope(
       // Prevent swipe popping of this page. Use explicit exit buttons only.
       onWillPop: () => Future<bool>.value(true),

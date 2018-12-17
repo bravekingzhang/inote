@@ -1,4 +1,3 @@
-import 'package:inote/persistence/remind_provider.dart';
 import 'package:rxdart/subjects.dart';
 import 'bloc_provider.dart';
 import 'package:inote/persistence/note_provider.dart';
@@ -12,8 +11,6 @@ class NoteListBloc extends BlocBase {
   List<Note> _listGoing = List();
 
   NoteProvider _noteProvider;
-
-  RemindProvider _remindProvider;
 
   Stream<List<Note>> get noteListDone => _controllerDone.stream;
 
@@ -30,7 +27,6 @@ class NoteListBloc extends BlocBase {
   void initState() async {
     // TODO: implement initState
     _noteProvider = NoteProvider();
-    _remindProvider = RemindProvider();
     _listDone = await _noteProvider.listNote(done: true);
     _listGoing = await _noteProvider.listNote(done: false);
     _controllerDone.sink.add(_listDone);
@@ -44,7 +40,7 @@ class NoteListBloc extends BlocBase {
         content: content,
         time: new DateTime.now().millisecondsSinceEpoch ~/ 1000,
         done: false);
-    note= await _noteProvider.insert(note);
+    note = await _noteProvider.insert(note);
     _listGoing.insert(0, note);
     _controllerGoing.sink.add(_listGoing);
     return note;
