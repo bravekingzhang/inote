@@ -66,6 +66,7 @@ class NoteListBloc extends BlocBase {
   Future onReDoing(Note note) async {
     note.done = false;
     _noteProvider.update(note);
+    note.progress = 0.0001;
     _listGoing.insert(0, note);
     _controllerGoing.sink.add(_listGoing);
     for (var value in _listGoing) {
