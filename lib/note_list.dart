@@ -45,60 +45,87 @@ class NoteList extends StatelessWidget {
                 done ? noteListBloc.noteListDone : noteListBloc.noteListGoing,
             builder:
                 (BuildContext context, AsyncSnapshot<List<Note>> snapshot) {
-              int length = snapshot.data?.length ?? 0;
-              return SliverPadding(
-                // Top media padding consumed by CupertinoSliverNavigationBar.
-                // Left/Right media padding consumed by Tab1RowItem.
-                padding: MediaQuery.of(context)
-                    .removePadding(
-                      removeTop: true,
-                      removeLeft: true,
-                      removeRight: true,
-                    )
-                    .padding,
-                sliver: length != 0
-                    ? SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          (BuildContext context, int index) {
-                            return NoteItemView(
-                              index: index,
-                              lastItem: index == snapshot.data.length - 1,
-                              color: colorItems[index],
-                              note: snapshot.data[index],
-                              done: done,
-                              noteListBloc: noteListBloc,
-                              homeBloc: homeBloc,
-                            );
-                          },
-                          childCount: snapshot.data?.length ?? 0,
-                        ),
-                      )
-                    : SliverFillViewport(
-                        delegate: SliverChildBuilderDelegate(
-                            (BuildContext context, int index) {
-                          return SafeArea(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Image.asset("images/no_content.jpg"),
-                                SizedBox(
-                                  height: 8.0,
-                                ),
-                                Text(
-                                  !done
-                                      ? "还没有笔记，赶紧点右上角添加一个吧~"
-                                      : "还没有已完成的笔记，加油哦~",
-                                  style: Theme.of(context).textTheme.caption,
-                                ),
-                              ],
-                            ),
-                          );
-                        }, childCount: 1),
-                      ),
-              );
+              if (!snapshot.hasData) {
+                return _buildWaitingForData(context);
+              } else {
+                int length = snapshot.data?.length ?? 0;
+                return buildListData(context, length, snapshot);
+              }
             },
           ),
         ],
+      ),
+    );
+  }
+
+  SliverPadding buildListData(
+      BuildContext context, int length, AsyncSnapshot<List<Note>> snapshot) {
+    return SliverPadding(
+      // Top media padding consumed by CupertinoSliverNavigationBar.
+      // Left/Right media padding consumed by Tab1RowItem.
+      padding: MediaQuery.of(context)
+          .removePadding(
+            removeTop: true,
+            removeLeft: true,
+            removeRight: true,
+          )
+          .padding,
+      sliver: length != 0
+          ? SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (BuildContext context, int index) {
+                  return NoteItemView(
+                    index: index,
+                    lastItem: index == snapshot.data.length - 1,
+                    color: colorItems[index],
+                    note: snapshot.data[index],
+                    done: done,
+                    noteListBloc: noteListBloc,
+                    homeBloc: homeBloc,
+                  );
+                },
+                childCount: snapshot.data?.length ?? 0,
+              ),
+            )
+          : _buildNoData(),
+    );
+  }
+
+  SliverFillViewport _buildNoData() {
+    return SliverFillViewport(
+      delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
+        return SafeArea(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Image.asset("images/no_content.jpg"),
+              SizedBox(
+                height: 8.0,
+              ),
+              Text(
+                !done ? "还没有笔记，赶紧点右上角添加一个吧~" : "还没有已完成的笔记，加油哦~",
+                style: Theme.of(context).textTheme.caption,
+              ),
+            ],
+          ),
+        );
+      }, childCount: 1),
+    );
+  }
+
+  SliverPadding _buildWaitingForData(BuildContext context) {
+    return SliverPadding(
+      padding: MediaQuery.of(context)
+          .removePadding(
+            removeTop: true,
+            removeLeft: true,
+            removeRight: true,
+          )
+          .padding,
+      sliver: SliverFillViewport(
+        delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
+          return CupertinoActivityIndicator();
+        }, childCount: 1),
       ),
     );
   }
