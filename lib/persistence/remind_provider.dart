@@ -1,5 +1,6 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'dart:math' as math;
 
 const String dbName = "data_remind.db";
 final String tableRemind = 'remind';
@@ -113,6 +114,24 @@ create table $tableRemind (
         where: '$columnNoteId = ? and $columnDone = ?',
         whereArgs: [noteId, isDone ? 1 : 0]);
     return maps.map((e) => Remind.fromMap(e)).toList();
+  }
+
+  //当前笔记的进度
+  Future<double> progress({int noteId}) async {
+    await _open();
+    List<Map> maps = await _db.query(tableRemind,
+        columns: [
+          columnId,
+          columnDone,
+          columnNoteId,
+          columnTime,
+          columnNotifyId
+        ],
+        where: '$columnNoteId = ? and $columnDone = ?',
+        whereArgs: [noteId, 0]);
+    int ing = maps.map((e) => Remind.fromMap(e)).toList()?.length ?? 0;
+    double progress = (7.001 - ing) / 7.0;
+    return progress > 1.0 ? 1.0 : progress;
   }
 
   //笔记下面所有的提醒

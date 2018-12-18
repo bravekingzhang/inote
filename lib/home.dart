@@ -66,11 +66,11 @@ class _HomePageState extends State<HomePage> {
             items: [
               BottomNavigationBarItem(
                 icon: Icon(Icons.list),
-                title: Text('ing'),
+                title: Text('记忆中'),
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.done),
-                title: Text('done'),
+                title: Text('已完成'),
               ),
             ],
           ),

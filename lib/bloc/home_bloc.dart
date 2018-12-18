@@ -35,7 +35,7 @@ class HomeBloc extends BlocBase {
   Future _initNotification() async {
     flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
     var initializationSettingsAndroid =
-        new AndroidInitializationSettings('app_icon');
+        new AndroidInitializationSettings('ic_launcher');
     var initializationSettingsIOS = new IOSInitializationSettings();
     var initializationSettings = new InitializationSettings(
         initializationSettingsAndroid, initializationSettingsIOS);
@@ -69,6 +69,7 @@ class HomeBloc extends BlocBase {
           notifyId: initRemindId,
           time: periodSettingStr.schedule,
           done: false));
+      initRemindId++;
     }
 
     var i = 0;
@@ -118,7 +119,6 @@ class HomeBloc extends BlocBase {
         new MaterialPageRoute(
             builder: (context) => new FullPageEditorScreen(
                   note: note,
-                  color: Colors.deepOrangeAccent,
                 )),
       );
     } else {

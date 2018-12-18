@@ -7,12 +7,11 @@ import 'dart:math' as math;
 
 class FullPageEditorScreen extends StatefulWidget {
   final Note note;
-  final Color color;
 
   @override
   _FullPageEditorScreenState createState() => new _FullPageEditorScreenState();
 
-  FullPageEditorScreen({this.note, this.color});
+  FullPageEditorScreen({this.note});
 }
 
 class _FullPageEditorScreenState extends State<FullPageEditorScreen> {
@@ -59,8 +58,8 @@ class _FullPageEditorScreenState extends State<FullPageEditorScreen> {
     return Scaffold(
       resizeToAvoidBottomPadding: true,
       appBar: AppBar(
-        elevation: 1.0,
-        backgroundColor: Colors.grey.shade200,
+        elevation: 0.1,
+        backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: Colors.blueAccent),
         brightness: Brightness.light,
         title: Text(
@@ -72,12 +71,14 @@ class _FullPageEditorScreenState extends State<FullPageEditorScreen> {
         child: ZefyrTheme(
           data: theme,
           child: Container(
+            padding: EdgeInsets.only(
+                left: 20.0, top: 115.0, bottom: 30.0, right: 20.0),
             decoration: ShapeDecoration(
-                shape: RoundedRectangleBorder(),
-                gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Colors.white, widget.color])),
+              shape: RoundedRectangleBorder(),
+              image: DecorationImage(
+                  image: Image.asset("images/editor1.jpg").image,
+                  fit: BoxFit.fill),
+            ),
             child: ZefyrEditor(
               controller: _controller,
               focusNode: _focusNode,

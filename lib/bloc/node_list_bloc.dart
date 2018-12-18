@@ -41,6 +41,7 @@ class NoteListBloc extends BlocBase {
         time: new DateTime.now().millisecondsSinceEpoch ~/ 1000,
         done: false);
     note = await _noteProvider.insert(note);
+    note.progress = 0.0001;
     _listGoing.insert(0, note);
     _controllerGoing.sink.add(_listGoing);
     return note;
@@ -62,7 +63,7 @@ class NoteListBloc extends BlocBase {
   }
 
   ///主动使得重新开始note
-  void onReDoing(Note note) {
+  Future onReDoing(Note note) async {
     note.done = false;
     _noteProvider.update(note);
     _listGoing.insert(0, note);

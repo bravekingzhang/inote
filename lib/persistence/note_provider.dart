@@ -1,6 +1,8 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
+import 'package:inote/persistence/remind_provider.dart';
+
 const String dbName = "data_note.db";
 final String tableNote = 'node';
 final String columnId = '_id';
@@ -14,9 +16,10 @@ class Note {
   String title;
   String content;
   int time;
+  double progress;
   bool done;
 
-  Note({this.title, this.content, this.time, this.done});
+  Note({this.title, this.content, this.progress = 1.0, this.time, this.done});
 
   Map<String, dynamic> toMap() {
     var map = <String, dynamic>{
@@ -55,8 +58,10 @@ class NoteProvider {
 
   NoteProvider._internal() {
     _open();
+    _remindProvider = RemindProvider();
   }
 
+  RemindProvider _remindProvider;
   Database _db;
 
   Future _open({String name = dbName}) async {
@@ -89,7 +94,17 @@ create table $tableNote (
         columns: [columnId, columnDone, columnTitle, columnTime, columnContent],
         where: '$columnDone = ?',
         whereArgs: [done ? 1 : 0]);
-    return maps.map((e) => Note.fromMap(e)).toList();
+    List<Note> noteList = maps.map((e) => Note.fromMap(e)).toList();
+    if (done) {
+      for (var value in noteList) {
+        value.progress = 1.0;
+      }
+    } else {
+      for (var value in noteList) {
+        value.progress = await _remindProvider.progress(noteId: value.id);
+      }
+    }
+    return noteList;
   }
 
   Future<Note> getNote(int id) async {

@@ -3,10 +3,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:inote/bloc/home_bloc.dart';
 import 'package:inote/bloc/node_list_bloc.dart';
 import 'package:inote/edtor/full_page.dart';
+import 'package:inote/edtor/period_setting.dart';
 import 'package:inote/tool_tip_button.dart';
 import 'package:inote/add_note.dart';
 import 'package:inote/persistence/note_provider.dart';
 import 'package:inote/utils/toast_utils.dart';
+import 'package:inote/widget/Slider.dart';
 
 class NoteList extends StatelessWidget {
   const NoteList(
@@ -26,7 +28,7 @@ class NoteList extends StatelessWidget {
           CupertinoSliverNavigationBar(
             trailing: ToolTipButton(
               message: "add new note",
-              text: "Add",
+              text: "添加",
               callback: () {
                 Navigator.of(context, rootNavigator: true)
                     .push(MaterialPageRoute(builder: (context) {
@@ -43,6 +45,7 @@ class NoteList extends StatelessWidget {
                 done ? noteListBloc.noteListDone : noteListBloc.noteListGoing,
             builder:
                 (BuildContext context, AsyncSnapshot<List<Note>> snapshot) {
+              int length = snapshot.data?.length ?? 0;
               return SliverPadding(
                 // Top media padding consumed by CupertinoSliverNavigationBar.
                 // Left/Right media padding consumed by Tab1RowItem.
@@ -53,22 +56,45 @@ class NoteList extends StatelessWidget {
                       removeRight: true,
                     )
                     .padding,
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (BuildContext context, int index) {
-                      return NoteItemView(
-                        index: index,
-                        lastItem: index == snapshot.data.length - 1,
-                        color: colorItems[index],
-                        note: snapshot.data[index],
-                        done: done,
-                        noteListBloc: noteListBloc,
-                        homeBloc: homeBloc,
-                      );
-                    },
-                    childCount: snapshot.data?.length ?? 0,
-                  ),
-                ),
+                sliver: length != 0
+                    ? SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (BuildContext context, int index) {
+                            return NoteItemView(
+                              index: index,
+                              lastItem: index == snapshot.data.length - 1,
+                              color: colorItems[index],
+                              note: snapshot.data[index],
+                              done: done,
+                              noteListBloc: noteListBloc,
+                              homeBloc: homeBloc,
+                            );
+                          },
+                          childCount: snapshot.data?.length ?? 0,
+                        ),
+                      )
+                    : SliverFillViewport(
+                        delegate: SliverChildBuilderDelegate(
+                            (BuildContext context, int index) {
+                          return SafeArea(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Image.asset("images/no_content.jpg"),
+                                SizedBox(
+                                  height: 8.0,
+                                ),
+                                Text(
+                                  !done
+                                      ? "还没有笔记，赶紧点右上角添加一个吧~"
+                                      : "还没有已完成的笔记，加油哦~",
+                                  style: Theme.of(context).textTheme.caption,
+                                ),
+                              ],
+                            ),
+                          );
+                        }, childCount: 1),
+                      ),
               );
             },
           ),
@@ -105,7 +131,6 @@ class NoteItemView extends StatelessWidget {
             .push(CupertinoPageRoute<void>(
           title: note.title,
           builder: (BuildContext context) => FullPageEditorScreen(
-                color: done ? Colors.grey : color,
                 note: note,
               ),
         ));
@@ -139,7 +164,13 @@ class NoteItemView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(note.title),
-                      const Padding(padding: EdgeInsets.only(top: 8.0)),
+                      Container(
+                        height: 20.0,
+                        child: INoteSlider(
+                          value: note.progress,
+                          onChanged: null,
+                        ),
+                      )
                     ],
                   ),
                 ),
@@ -165,12 +196,22 @@ class NoteItemView extends StatelessWidget {
                       child: const Icon(
                         Icons.done,
                         color: CupertinoColors.inactiveGray,
-                        semanticLabel: 'done',
+                        semanticLabel: '完成',
                       ),
-                      onPressed: () {
-                        noteListBloc.onReDoing(note);
-                        homeBloc.showNotifyPeriodically(note: note);
-                        showToast("已重新开始复习！");
+                      onPressed: () async {
+                        bool result = await Navigator.of(context)
+                                .push(MaterialPageRoute(builder: (context) {
+                              return PeriodSetting(
+                                note: note,
+                                homeBloc: homeBloc,
+                                noteListBloc: noteListBloc,
+                                isRedo: true,
+                              );
+                            })) ??
+                            false;
+                        if (result) {
+                          showToast("已重新开始复习！");
+                        }
                       },
                     ),
             ],

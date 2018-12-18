@@ -40,14 +40,14 @@ class _FormEmbeddedScreenState extends State<FormEmbeddedScreen> {
         child: TextField(
             controller: _titleController,
             decoration: InputDecoration(
-                border: UnderlineInputBorder(), labelText: 'Title')),
+                border: UnderlineInputBorder(), labelText: '标题')),
       ),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15.0),
-        child: TextField(
-            decoration: InputDecoration(
-                border: UnderlineInputBorder(), labelText: 'Category')),
-      ),
+//      Padding(
+//        padding: const EdgeInsets.symmetric(horizontal: 15.0),
+//        child: TextField(
+//            decoration: InputDecoration(
+//                border: UnderlineInputBorder(), labelText: '类别',enabled: false,)),
+//      ),
       Expanded(
         child: buildEditor(),
       ),
@@ -59,14 +59,14 @@ class _FormEmbeddedScreenState extends State<FormEmbeddedScreen> {
         iconTheme: IconThemeData(color: Colors.blueAccent),
         brightness: Brightness.light,
         title: Text(
-          "New",
+          "新建记忆",
           style: Theme.of(context).textTheme.title,
         ),
         actions: <Widget>[
           new FlatButton(
               onPressed: _save,
               child: Text(
-                'Next',
+                '下一步',
                 style: TextStyle(color: Colors.blueAccent),
               ))
         ],
@@ -96,6 +96,7 @@ class _FormEmbeddedScreenState extends State<FormEmbeddedScreen> {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [Colors.white, Colors.deepOrangeAccent]),
+//          image: DecorationImage(image: Image.asset("images/editor1.jpg").image,fit: BoxFit.fill),
           borderRadius: BorderRadius.circular(3.0)),
       child: ZefyrTheme(
         data: theme,
@@ -115,12 +116,18 @@ class _FormEmbeddedScreenState extends State<FormEmbeddedScreen> {
     Note note = Note(
         title: _titleController.text,
         content: jsonEncode(_controller.document.toJson()));
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-      return PeriodSetting(
-        note: note,
-        homeBloc: widget.homeBloc,
-        noteListBloc: widget.noteListBloc,
-      );
-    }));
+    bool result =
+        await Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+              return PeriodSetting(
+                note: note,
+                homeBloc: widget.homeBloc,
+                noteListBloc: widget.noteListBloc,
+              );
+            })) ??
+            false;
+    if (result) {
+      //成功添加之后，退出编辑页面
+      Navigator.of(context).pop();
+    }
   }
 }

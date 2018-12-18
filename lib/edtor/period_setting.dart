@@ -4,14 +4,21 @@ import 'package:intl/intl.dart';
 import 'package:inote/persistence/note_provider.dart';
 import 'package:inote/bloc/node_list_bloc.dart';
 import 'package:inote/bloc/home_bloc.dart';
+import 'package:inote/utils/time_utils.dart';
 
 //记忆曲线设置
 class PeriodSetting extends StatefulWidget {
   final Note note;
   final HomeBloc homeBloc;
   final NoteListBloc noteListBloc;
+  final bool isRedo;
 
-  const PeriodSetting({Key key, this.note, this.homeBloc, this.noteListBloc})
+  const PeriodSetting(
+      {Key key,
+      this.note,
+      this.homeBloc,
+      this.noteListBloc,
+      this.isRedo = false})
       : super(key: key);
 
   @override
@@ -128,10 +135,8 @@ class _PeriodSettingState extends State<PeriodSetting> {
         <Widget>[
           Text(per.title),
           Text(
-            DateFormat.yMMMd().add_jm().format(
-                DateTime.fromMillisecondsSinceEpoch(
-                    new DateTime.now().millisecondsSinceEpoch +
-                        per.schedule * 1000)),
+            TimeUtils.timeToNow(
+                DateTime.now().millisecondsSinceEpoch ~/ 1000 + per.schedule),
             style: const TextStyle(color: CupertinoColors.inactiveGray),
           ),
         ],
@@ -143,12 +148,19 @@ class _PeriodSettingState extends State<PeriodSetting> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('记忆曲线设置'),
+        title: Text(
+          '记忆曲线设置',
+          style: Theme.of(context).textTheme.title,
+        ),
+        elevation: 1.0,
+        backgroundColor: Colors.grey.shade200,
+        iconTheme: IconThemeData(color: Colors.blueAccent),
+        brightness: Brightness.light,
         actions: <Widget>[
           new FlatButton(
               onPressed: _save,
               child: Text(
-                'Done',
+                '完成',
                 style: TextStyle(color: Colors.blueAccent),
               ))
         ],
@@ -162,19 +174,48 @@ class _PeriodSettingState extends State<PeriodSetting> {
         child: DecoratedBox(
           decoration: const BoxDecoration(color: Color(0xFFEFEFF4)),
           child: ListView(
-            children: scheduleList.map(_buildDateAndTimePicker).toList(),
+            children: _buildList(),
           ),
         ),
       ),
     );
   }
 
+  List<Widget> _buildList() {
+    List<Widget> widgetList = List();
+    widgetList = scheduleList.map(_buildDateAndTimePicker).toList();
+    widgetList.insert(
+        0,
+        Image.asset(
+          'images/aibinhaosi.png',
+        ));
+    widgetList.add(Center(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(
+          "建议时间依据艾宾浩斯曲线，提示周期逐步增长设置",
+          style: Theme.of(context).textTheme.caption,
+        ),
+      ),
+    ));
+    return widgetList;
+  }
+
   Future _save() async {
-    Note note = await widget.noteListBloc
-        .onNoteAdd(title: widget.note.title, content: widget.note.content);
-    Navigator.of(context).pop();
-    print('插入笔记成功$note');
-    widget.homeBloc.showNotifyPeriodically(note: note,);
+    Note note;
+    if (widget.isRedo) {
+      await widget.noteListBloc.onReDoing(widget.note);
+      note = widget.note;
+    } else {
+      note = await widget.noteListBloc
+          .onNoteAdd(title: widget.note.title, content: widget.note.content);
+      print('插入笔记成功$note');
+    }
+
+    ///用于编辑页面的退出
+    Navigator.of(context).pop(true);
+    widget.homeBloc
+        .showNotifyPeriodically(note: note, periodList: scheduleList);
   }
 
   void _scheduleChange(int index, int period) {
