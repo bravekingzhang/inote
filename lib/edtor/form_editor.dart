@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:inote/persistence/note_provider.dart';
+import 'package:inote/utils/toast_utils.dart';
 import 'package:zefyr/zefyr.dart';
 
 import 'package:inote/edtor/full_page.dart';
@@ -113,9 +114,18 @@ class _FormEmbeddedScreenState extends State<FormEmbeddedScreen> {
   }
 
   void _save() async {
-    Note note = Note(
-        title: _titleController.text,
-        content: jsonEncode(_controller.document.toJson()));
+    if (_titleController.text.isEmpty) {
+      showToast("请填写标题");
+      return;
+    }
+    String content = jsonEncode(_controller.document.toJson());
+    debugPrint(content);
+    debugPrint("${content.length}");
+    if (content.length < 20) {
+      showToast("适当的填充内容可以辅助记忆");
+      return;
+    }
+    Note note = Note(title: _titleController.text, content: content);
     bool result =
         await Navigator.of(context).push(MaterialPageRoute(builder: (context) {
               return PeriodSetting(
