@@ -1,0 +1,48 @@
+sudo: required
+language: dart
+language: android
+os:
+  - linux
+jdk:
+  -  oraclejdk8
+#
+
+script:
+  - flutter build apk
+#
+
+before_install:
+  - git clone -b master https://github.com/flutter/flutter.git
+  - wget http://services.gradle.org/distributions/gradle-4.6-all.zip
+  - unzip gradle-4.6-all.zip
+#
+
+install:
+  - export GRADLE_HOME=$PWD/gradle-4.6
+  - export PATH=$GRADLE_HOME/bin:$PATH
+  - export PATH=./flutter/bin:$PATH
+#
+
+android:
+  components:
+    - tools
+    - platform-tools
+    - build-tools-28.0.3
+    - android-27
+    - extra-android-support
+    #- extra-google-google_play_services
+    - extra-android-m2repository
+    - extra-google-m2repository
+    - addon-google_apis-google-21
+
+deploy:
+  provider: releases
+  skip_cleanup: true
+  github-token:
+  api_key:
+    secure: lc/E3aXoWAKBH22e/ubkytiXvAv6nxHAATp8dkFj5Cr8r7bGcn3qTLXnygc0aUH5ESqfgSUdu1Snq1mIjZPa+gcaSzhXEiJRgOVwkPaapQsS7IniIMLC94MLTD0xxwPUKnKMcQF+148YvdCUL16Fod+t9wp510nfxroYMFJVC3SS1F1axg0TT5pNsHd57Pds2vskQ6Dhn1VIVMN99E5VU1XDmnx1UlaxSw4MWAmDgatNv402FNtEj+5qac3Bo6WXZHrQZOSVE96Dj85Cf8/aI8v7qnP+AQfOuaFf+9x+0GyGsGOPCu028jE6rSfhSSqfwZ9fIW8Zhzx5egwA8t8rpdRjgAR3PWzWFhAqhVl37NYxTn8tn59PseEGbbWcrloB1gq1do5hQPwKtkd9ENyeRoJXXpv4Xzqi5duKIfbL+hFiQfD5Q1jygxKrQJvqWxDSwwffqwSTRtgynNmw0bNRdaQWWeaiKE6Rsz5quhhoOP0R9WTJ59WoD+MPW+WxCguQzHOfdgZdcZXjQQn9ERneq4sZ9DkqCQ+3Q3HKeED2ghL2Si1MYhP9ohs9pLZ7mht76sVJLg8xZV0NFJ08irkEHYseIvP+s/iRI3FRozgm6C41OT62//ZSp9DyI5f5ZIRI2pZ7XGIbcVksAZapD3ZKd6/khViwMHlhWjLrcc+pXOQ=
+  file:
+    - build/app/outputs/apk/release/app-release.apk
+  on:
+    tags: true
+    repo: bravekingzhang/inote

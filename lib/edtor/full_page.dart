@@ -71,13 +71,16 @@ class _FullPageEditorScreenState extends State<FullPageEditorScreen> {
         child: ZefyrTheme(
           data: theme,
           child: Container(
-            padding: EdgeInsets.only(
-                left: 20.0, top: 115.0, bottom: 30.0, right: 20.0),
+            padding: EdgeInsets.all(10.0),
             decoration: ShapeDecoration(
               shape: RoundedRectangleBorder(),
-              image: DecorationImage(
-                  image: Image.asset("images/editor1.jpg").image,
-                  fit: BoxFit.fill),
+                gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Colors.white, Colors.deepOrangeAccent]),
+//              image: DecorationImage(
+//                  image: Image.asset("images/editor1.jpg").image,
+//                  fit: BoxFit.fill),
             ),
             child: ZefyrEditor(
               controller: _controller,
