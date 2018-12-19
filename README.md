@@ -34,6 +34,11 @@
 
 ![](https://github.com/bravekingzhang/inote/blob/master/artifact/snapchat.png)
 
+### 打赏支持
+
+![](https://github.com/bravekingzhang/inote/blob/master/artifact/pay.png)
+
+
 ### 后期预期实现
 
 - 1、增加用户登录，注册。
