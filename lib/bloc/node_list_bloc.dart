@@ -41,7 +41,7 @@ class NoteListBloc extends BlocBase {
         time: new DateTime.now().millisecondsSinceEpoch ~/ 1000,
         done: false);
     note = await _noteProvider.insert(note);
-    note.progress = 0.0001;
+    note.progress = 0;
     _listGoing.insert(0, note);
     _controllerGoing.sink.add(_listGoing);
     return note;
@@ -50,6 +50,7 @@ class NoteListBloc extends BlocBase {
   ///主动使得note完成
   Future onDone(Note note) async {
     note.done = true;
+    note.progress = 1.0;
     _noteProvider.update(note);
     _listDone.add(note);
     _controllerDone.sink.add(_listDone);
@@ -62,14 +63,32 @@ class NoteListBloc extends BlocBase {
     _controllerGoing.sink.add(_listGoing);
   }
 
+  Future deleteNote(Note note) async{
+    for (var value in _listGoing) {
+      if (value.id == note.id) {
+        _listGoing.remove(value);
+        break;
+      }
+    }
+    _controllerGoing.sink.add(_listGoing);
+    for (var value in _listDone) {
+      if (value.id == note.id) {
+        _listDone.remove(value);
+        break;
+      }
+    }
+    _controllerDone.sink.add(_listDone);
+    _noteProvider.delete(note.id);
+  }
+
   ///主动使得重新开始note
   Future onReDoing(Note note) async {
     note.done = false;
     _noteProvider.update(note);
-    note.progress = 0.0001;
+    note.progress = 0;
     _listGoing.insert(0, note);
     _controllerGoing.sink.add(_listGoing);
-    for (var value in _listGoing) {
+    for (var value in _listDone) {
       if (value.id == note.id) {
         _listDone.remove(value);
         break;

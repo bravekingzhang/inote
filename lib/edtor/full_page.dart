@@ -4,14 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:zefyr/zefyr.dart';
 import 'package:quill_delta/quill_delta.dart';
 import 'dart:math' as math;
+import 'package:inote/bloc/node_list_bloc.dart';
+import 'package:inote/utils/toast_utils.dart';
 
 class FullPageEditorScreen extends StatefulWidget {
   final Note note;
+  final NoteListBloc noteListBloc;
 
   @override
   _FullPageEditorScreenState createState() => new _FullPageEditorScreenState();
 
-  FullPageEditorScreen({this.note});
+  FullPageEditorScreen({this.note, this.noteListBloc});
 }
 
 class _FullPageEditorScreenState extends State<FullPageEditorScreen> {
@@ -66,6 +69,14 @@ class _FullPageEditorScreenState extends State<FullPageEditorScreen> {
           widget.note.title,
           style: Theme.of(context).textTheme.title,
         ),
+        actions: <Widget>[
+          FlatButton(
+              onPressed: _delete,
+              child: Text(
+                '删除',
+                style: TextStyle(color: Colors.blueAccent),
+              ))
+        ],
       ),
       body: ZefyrScaffold(
         child: ZefyrTheme(
@@ -74,10 +85,10 @@ class _FullPageEditorScreenState extends State<FullPageEditorScreen> {
             padding: EdgeInsets.all(10.0),
             decoration: ShapeDecoration(
               shape: RoundedRectangleBorder(),
-                gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Colors.white, Colors.deepOrangeAccent]),
+              gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.white, Colors.deepOrangeAccent]),
 //              image: DecorationImage(
 //                  image: Image.asset("images/editor1.jpg").image,
 //                  fit: BoxFit.fill),
@@ -98,6 +109,12 @@ class _FullPageEditorScreenState extends State<FullPageEditorScreen> {
     setState(() {
       _editing = true;
     });
+  }
+
+  void _delete() async {
+    await widget.noteListBloc.deleteNote(widget.note);
+    showToast('已删除[${widget.note.title}]');
+    Navigator.of(context).pop();
   }
 
   void _stopEditing() {

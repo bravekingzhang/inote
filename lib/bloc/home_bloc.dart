@@ -119,6 +119,7 @@ class HomeBloc extends BlocBase {
         new MaterialPageRoute(
             builder: (context) => new FullPageEditorScreen(
                   note: note,
+                  noteListBloc: _noteListBloc,
                 )),
       );
     } else {

@@ -130,7 +130,7 @@ create table $tableRemind (
         where: '$columnNoteId = ? and $columnDone = ?',
         whereArgs: [noteId, 0]);
     int ing = maps.map((e) => Remind.fromMap(e)).toList()?.length ?? 0;
-    double progress = (7.001 - ing) / 7.0;
+    double progress = (7.00 - ing) / 7.0;
     return progress > 1.0 ? 1.0 : progress;
   }
 

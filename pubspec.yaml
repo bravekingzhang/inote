@@ -26,6 +26,8 @@ dependencies:
   flutter_local_notifications: ^0.4.2+1
   intl: ^0.15.7
   flutter_launcher_icons: ^0.7.0
+  percent_indicator: ^1.0.11
+  flutter_slidable: "^0.4.9"
 
 dev_dependencies:
   flutter_test:

@@ -8,11 +8,16 @@ import 'package:inote/tool_tip_button.dart';
 import 'package:inote/add_note.dart';
 import 'package:inote/persistence/note_provider.dart';
 import 'package:inote/utils/toast_utils.dart';
-import 'package:inote/widget/Slider.dart';
+import 'package:percent_indicator/percent_indicator.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
-class NoteList extends StatelessWidget {
-  const NoteList(
-      {this.colorItems, this.noteListBloc, this.homeBloc, this.done});
+class NoteList extends StatefulWidget {
+  const NoteList({
+    this.colorItems,
+    this.noteListBloc,
+    this.homeBloc,
+    this.done,
+  });
 
   final List<Color> colorItems;
   final HomeBloc homeBloc;
@@ -20,9 +25,23 @@ class NoteList extends StatelessWidget {
   final bool done;
 
   @override
+  _NoteListState createState() => _NoteListState();
+}
+
+class _NoteListState extends State<NoteList> {
+  SlidableController slidableController;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    slidableController = SlidableController();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      child: CustomScrollView(
+    return Scaffold(
+      body: CustomScrollView(
 //        semanticChildCount: _kChildCount,
         slivers: <Widget>[
           CupertinoSliverNavigationBar(
@@ -33,16 +52,17 @@ class NoteList extends StatelessWidget {
                 Navigator.of(context, rootNavigator: true)
                     .push(MaterialPageRoute(builder: (context) {
                   return AddNote(
-                    noteListBloc: noteListBloc,
-                    homeBloc: homeBloc,
+                    noteListBloc: widget.noteListBloc,
+                    homeBloc: widget.homeBloc,
                   );
                 }));
               },
             ),
           ),
           StreamBuilder(
-            stream:
-                done ? noteListBloc.noteListDone : noteListBloc.noteListGoing,
+            stream: widget.done
+                ? widget.noteListBloc.noteListDone
+                : widget.noteListBloc.noteListGoing,
             builder:
                 (BuildContext context, AsyncSnapshot<List<Note>> snapshot) {
               if (!snapshot.hasData) {
@@ -74,21 +94,100 @@ class NoteList extends StatelessWidget {
           ? SliverList(
               delegate: SliverChildBuilderDelegate(
                 (BuildContext context, int index) {
-                  return NoteItemView(
-                    index: index,
-                    lastItem: index == snapshot.data.length - 1,
-                    color: colorItems[index],
-                    note: snapshot.data[index],
-                    done: done,
-                    noteListBloc: noteListBloc,
-                    homeBloc: homeBloc,
-                  );
+                  return Slidable.builder(
+                      controller: slidableController,
+                      key: Key(index.toString()),
+                      child: NoteItemView(
+                        index: index,
+                        lastItem: index == snapshot.data.length - 1,
+                        color: widget.colorItems[index],
+                        note: snapshot.data[index],
+                        done: widget.done,
+                        noteListBloc: widget.noteListBloc,
+                        homeBloc: widget.homeBloc,
+                      ),
+                      delegate: SlidableDrawerDelegate(),
+                      secondaryActionDelegate: new SlideActionBuilderDelegate(
+                          actionCount: 2,
+                          builder: (context, index, animation, renderingMode) {
+                            if (index == 0) {
+                              return new IconSlideAction(
+                                caption: widget.done?'重新开始':'提前完成',
+                                color:
+                                    renderingMode == SlidableRenderingMode.slide
+                                        ? Colors.grey.shade200
+                                            .withOpacity(animation.value)
+                                        : Colors.grey.shade200,
+                                icon: widget.done?Icons.redo:Icons.done,
+                                onTap: () async {
+                                  Note note = snapshot.data[index];
+                                  if (!widget.done) {
+                                    //设置笔记标志位为完成
+                                    _setNoteDone(note, context);
+                                  } else {
+                                    //重新开始笔记
+                                    await _setNoteReMem(context, note);
+                                  }
+                                },
+                              );
+                            } else {
+                              return new IconSlideAction(
+                                caption: '删除',
+                                color: renderingMode ==
+                                        SlidableRenderingMode.slide
+                                    ? Colors.red.withOpacity(animation.value)
+                                    : Colors.red,
+                                icon: Icons.delete,
+                                onTap: ()  async{
+                                  Note note = snapshot.data[index];
+                                  _deleteNote(note, context);
+                                }
+                              );
+                            }
+                          }));
                 },
                 childCount: snapshot.data?.length ?? 0,
               ),
             )
           : _buildNoData(),
     );
+  }
+
+  Future _setNoteReMem(BuildContext context, Note note) async {
+    bool result =
+        await Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+              return PeriodSetting(
+                note: note,
+                homeBloc: widget.homeBloc,
+                noteListBloc: widget.noteListBloc,
+                isRedo: true,
+              );
+            })) ??
+            false;
+    if (result) {
+      showToast("已重新开始复习！");
+    }
+  }
+
+
+  void _deleteNote(Note note, BuildContext context) {
+    //清除笔记待提醒事件
+    widget.homeBloc.setNoteFinished(note: note);
+    widget.noteListBloc.deleteNote(note);
+    _showSnackBar(context, '已删除[${note.title}]');
+  }
+
+  void _setNoteDone(Note note, BuildContext context) {
+    widget.noteListBloc.onDone(note);
+    //清除笔记待提醒事件
+    widget.homeBloc.setNoteFinished(note: note);
+    //                        showToast("恭喜！已提前完成！");
+    _showSnackBar(context, '已提前完成[${note.title}]');
+  }
+
+  void _showSnackBar(BuildContext context, String text) {
+    print("_showSnackBar");
+    Scaffold.of(context).showSnackBar(SnackBar(content: new Text(text)));
   }
 
   SliverFillViewport _buildNoData() {
@@ -103,7 +202,7 @@ class NoteList extends StatelessWidget {
                 height: 8.0,
               ),
               Text(
-                !done ? "还没有笔记，赶紧点右上角添加一个吧~" : "还没有已完成的笔记，加油哦~",
+                !widget.done ? "还没有笔记，赶紧点右上角添加一个吧~" : "还没有已完成的笔记，加油哦~",
                 style: Theme.of(context).textTheme.caption,
               ),
             ],
@@ -159,6 +258,7 @@ class NoteItemView extends StatelessWidget {
           title: note.title,
           builder: (BuildContext context) => FullPageEditorScreen(
                 note: note,
+            noteListBloc: noteListBloc,
               ),
         ));
       },
@@ -174,7 +274,7 @@ class NoteItemView extends StatelessWidget {
                 height: 40.0,
                 width: 40.0,
                 decoration: BoxDecoration(
-                  color: done ? Colors.grey : color,
+                  color: done ? Colors.green : color,
                   borderRadius: BorderRadius.circular(8.0),
                 ),
                 child: Center(
@@ -192,55 +292,24 @@ class NoteItemView extends StatelessWidget {
                     children: <Widget>[
                       Text(note.title),
                       Container(
-                        height: 20.0,
-                        child: INoteSlider(
-                          value: note.progress,
-                          onChanged: null,
+                        child: LinearPercentIndicator(
+                          width: MediaQuery.of(context).size.width * 0.7,
+                          lineHeight: 18.0,
+                          center: Text(
+                            "当前进度${(note.progress * 100).toStringAsFixed(1)}%",
+                            style: TextStyle(fontSize: 10.0),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 1.0, horizontal: 5.0),
+                          percent: note.progress,
+                          backgroundColor: Colors.grey,
+                          progressColor: done ? Colors.green : color,
                         ),
                       )
                     ],
                   ),
                 ),
               ),
-              !note.done
-                  ? CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      child: const Icon(
-                        CupertinoIcons.time,
-                        color: CupertinoColors.activeBlue,
-                        semanticLabel: 'going',
-                      ),
-                      onPressed: () {
-                        //设置笔记标志位为完成
-                        noteListBloc.onDone(note);
-                        //清除笔记待提醒事件
-                        homeBloc.setNoteFinished(note: note);
-                        showToast("恭喜！已提前完成！");
-                      },
-                    )
-                  : CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      child: const Icon(
-                        Icons.done,
-                        color: CupertinoColors.inactiveGray,
-                        semanticLabel: '完成',
-                      ),
-                      onPressed: () async {
-                        bool result = await Navigator.of(context)
-                                .push(MaterialPageRoute(builder: (context) {
-                              return PeriodSetting(
-                                note: note,
-                                homeBloc: homeBloc,
-                                noteListBloc: noteListBloc,
-                                isRedo: true,
-                              );
-                            })) ??
-                            false;
-                        if (result) {
-                          showToast("已重新开始复习！");
-                        }
-                      },
-                    ),
             ],
           ),
         ),
