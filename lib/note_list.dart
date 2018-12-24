@@ -109,8 +109,8 @@ class _NoteListState extends State<NoteList> {
                       delegate: SlidableDrawerDelegate(),
                       secondaryActionDelegate: new SlideActionBuilderDelegate(
                           actionCount: 2,
-                          builder: (context, index, animation, renderingMode) {
-                            if (index == 0) {
+                          builder: (context, actionIndex, animation, renderingMode) {
+                            if (actionIndex == 0) {
                               return new IconSlideAction(
                                 caption: widget.done?'重新开始':'提前完成',
                                 color:
