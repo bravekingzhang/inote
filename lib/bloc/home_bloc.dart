@@ -4,7 +4,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:inote/bloc/node_list_bloc.dart';
 import 'package:inote/edtor/full_page.dart';
 import 'package:inote/edtor/period_setting.dart';
-import 'package:inote/note_detail.dart';
+import 'package:inote/utils/toast_utils.dart';
 import 'package:inote/persistence/note_provider.dart';
 import 'package:inote/persistence/remind_provider.dart';
 
@@ -102,6 +102,10 @@ class HomeBloc extends BlocBase {
       Remind remind =
           await _remindProvider.getRemind(notifyId: int.parse(payload));
       Note note = await _noteProvider.getNote(remind.noteId);
+      if(note==null){
+        showToast("该笔记已删除");
+        return;
+      }
       int maxNotifyId =
           await _remindProvider.getMaxNotifyIdByNoteId(noteId: remind.noteId);
       if (maxNotifyId == int.parse(payload)) {

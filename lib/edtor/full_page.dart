@@ -5,16 +5,18 @@ import 'package:zefyr/zefyr.dart';
 import 'package:quill_delta/quill_delta.dart';
 import 'dart:math' as math;
 import 'package:inote/bloc/node_list_bloc.dart';
+import 'package:inote/bloc/home_bloc.dart';
 import 'package:inote/utils/toast_utils.dart';
 
 class FullPageEditorScreen extends StatefulWidget {
   final Note note;
   final NoteListBloc noteListBloc;
+  final HomeBloc homeBloc;
 
   @override
   _FullPageEditorScreenState createState() => new _FullPageEditorScreenState();
 
-  FullPageEditorScreen({this.note, this.noteListBloc});
+  FullPageEditorScreen({this.note, this.noteListBloc,this.homeBloc});
 }
 
 class _FullPageEditorScreenState extends State<FullPageEditorScreen> {
@@ -113,6 +115,7 @@ class _FullPageEditorScreenState extends State<FullPageEditorScreen> {
 
   void _delete() async {
     await widget.noteListBloc.deleteNote(widget.note);
+    await widget.homeBloc.setNoteFinished(note: widget.note);
     showToast('已删除[${widget.note.title}]');
     Navigator.of(context).pop();
   }
