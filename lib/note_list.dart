@@ -258,6 +258,7 @@ class NoteItemView extends StatelessWidget {
           title: note.title,
           builder: (BuildContext context) => FullPageEditorScreen(
                 note: note,
+            homeBloc: homeBloc,
             noteListBloc: noteListBloc,
               ),
         ));

@@ -114,8 +114,8 @@ class _FullPageEditorScreenState extends State<FullPageEditorScreen> {
   }
 
   void _delete() async {
-    await widget.noteListBloc.deleteNote(widget.note);
     await widget.homeBloc.setNoteFinished(note: widget.note);
+    await widget.noteListBloc.deleteNote(widget.note);
     showToast('已删除[${widget.note.title}]');
     Navigator.of(context).pop();
   }
