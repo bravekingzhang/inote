@@ -7,7 +7,7 @@ description: 记忆学习辅助工具
 # Both the version and the builder number may be overridden in flutter
 # build by specifying --build-name and --build-number, respectively.
 # Read more about versioning at semver.org.
-version: 1.0.0+100005
+version: 1.0.0+100006
 
 environment:
   sdk: ">=2.0.0-dev.68.0 <3.0.0"
@@ -28,6 +28,7 @@ dependencies:
   flutter_launcher_icons: ^0.7.0
   percent_indicator: ^1.0.11
   flutter_slidable: "^0.4.9"
+  url_launcher: ^4.0.3
 
 dev_dependencies:
   flutter_test:

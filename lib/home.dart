@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:inote/bloc/home_bloc.dart';
 import 'package:inote/bloc/node_list_bloc.dart';
 import 'package:inote/note_list.dart';
+import 'package:inote/mine.dart';
 
 const List<Color> coolColors = <Color>[
   Color.fromARGB(255, 255, 59, 48),
@@ -66,11 +67,11 @@ class _HomePageState extends State<HomePage> {
             items: [
               BottomNavigationBarItem(
                 icon: Icon(Icons.list),
-                title: Text('记忆中'),
+                title: Text('复习'),
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.done),
-                title: Text('已完成'),
+                title: Text('设置'),
               ),
             ],
           ),
@@ -93,16 +94,14 @@ class _HomePageState extends State<HomePage> {
                 break;
               case 1:
                 return CupertinoTabView(
-                  //已完成
                   builder: (BuildContext context) {
-                    return NoteList(
+                    return Mine(
                       colorItems: widget.colorItems,
                       noteListBloc: noteListBloc,
                       homeBloc: _homeBloc,
-                      done: true,
                     );
                   },
-                  defaultTitle: 'Notes',
+                  defaultTitle: 'Setting',
                 );
                 break;
             }
